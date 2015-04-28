@@ -246,6 +246,12 @@ def reflow_row_contents(row, widths):
     return new_row
 
 
+def draw_text(indent, table, manual_widths=None):
+    output = ['']
+    for row in table:
+        output.append(indent + '  '.join(row).replace('\n', ''))
+    return output
+
 def draw_table(indent, table, manual_widths=None):
     if table == []:
         return []
@@ -283,6 +289,13 @@ def draw_table(indent, table, manual_widths=None):
 
     return output
 
+@bridged
+def clear_table():
+    upper, lower, indent = get_table_bounds()
+    slice = vim.current.buffer[upper - 1:lower]
+    table = parse_table(slice)
+    slice = draw_text(indent, table)
+    vim.current.buffer[upper - 1:lower] = slice
 
 @bridged
 def reformat_table():
@@ -312,5 +325,8 @@ if !exists("no_plugin_maps") && !exists("no_rst_table_maps")
     endif
     if !hasmapto('ReflowTable(')
         noremap <silent> <leader><leader>f :call ReflowTable()<CR>
+    endif
+    if !hasmapto('ClearTable(')
+        noremap <silent> <leader><leader>t :call ClearTable()<CR>
     endif
 endif
